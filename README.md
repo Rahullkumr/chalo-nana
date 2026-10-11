@@ -6,9 +6,9 @@
 
 My Nana's doctor has advised him to walk at least 30 minutes a day. His legs are fine. What he lacks is a reason to put the reels down at five in the evening.
 
-Chalo Nana ("come on, Nana") gives him one. Every day a family member spends 30 seconds tapping how he is. A local Gemma model and some plain code turn that into a walk sized for him, through the places he likes, opening with what's happening there today. He hears it once, in a warm Hindi voice, and goes.
+Chalo Nana ("Let's go, Nana") gives him one. Every day a family member spends 30 seconds tapping how he is. A local Gemma model and some plain code turn that into a walk sized for him, through the places he likes, opening with what's happening there today. He hears it once, in a warm Hindi voice, and goes.
 
-Built for DEV's [Hacktoberfest Open-Source AI Challenge, Week 1: Touch Grass](https://dev.to/challenges/hacktoberfest-week1-2026-10-05). It follows [Padh Ke Batao](https://github.com/Rahullkumr/padh-ke-batao), which I built for the same Nana in the previous round.
+Built for DEV's [Hacktoberfest Open-Source AI Challenge, Week 1: Touch Grass](https://dev.to/challenges/hacktoberfest-week1-2026-10-05).
 
 | Family page: 30 seconds a day | Nana's page: one button |
 |---|---|
