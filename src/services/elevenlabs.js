@@ -1,5 +1,5 @@
-// Turns the explanation text into speech with ElevenLabs.
-// Only the spoken text is sent; the photo and the details list never leave the computer.
+// Turns the spoken plan into speech with ElevenLabs.
+// Only the plan text is sent: no coordinates, no place map, no walk log.
 import { ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, ELEVENLABS_MODEL } from '../config.js';
 
 export const ttsEnabled = Boolean(ELEVENLABS_API_KEY);
@@ -22,4 +22,10 @@ export async function speak(text, signal) {
   );
   if (!res.ok) throw new Error(`ElevenLabs error ${res.status}: ${(await res.text()).slice(0, 300)}`);
   return res.body;
+}
+
+// The whole MP3 in memory, for saving today's plan to disk.
+export async function speakToBuffer(text, signal) {
+  const stream = await speak(text, signal);
+  return Buffer.from(await new Response(stream).arrayBuffer());
 }

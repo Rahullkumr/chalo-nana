@@ -1,0 +1,24 @@
+{
+  "note": "Example place map for a made-up village. Copy to data/places.json and edit for your own family. days: 0=Sunday ... 6=Saturday. hours: 24h clock. likes: 0-2.",
+  "places": [
+    { "id": "home", "name": "घर", "kind": "home", "sit": "घर", "likes": 0 },
+    { "id": "temple", "name": "शिव मंदिर", "kind": "temple", "sit": "मंदिर की सीढ़ियाँ", "likes": 2 },
+    { "id": "dam", "name": "बाँध", "kind": "dam", "sit": "बाँध के पास पत्थर", "likes": 2 },
+    { "id": "stadium", "name": "मैदान", "kind": "stadium", "sit": "मैदान की सीढ़ियाँ", "hours": { "from": 15.5, "to": 18.5 }, "likes": 1 },
+    { "id": "tea", "name": "महतो जी की चाय दुकान", "kind": "tea", "sit": "दुकान की बेंच", "likes": 2 },
+    { "id": "haat", "name": "हाट", "kind": "market", "sit": null, "days": [3, 6], "likes": 1 },
+    { "id": "peepal", "name": "पीपल का पेड़", "kind": "rest", "sit": "पीपल के नीचे चबूतरा", "likes": 1 }
+  ],
+  "links": [
+    { "a": "home", "b": "temple", "minutes": 6, "highway": false, "uphill": false, "shade": true },
+    { "a": "temple", "b": "dam", "minutes": 10, "highway": false, "uphill": true, "shade": false },
+    { "a": "home", "b": "peepal", "minutes": 7, "highway": false, "uphill": false, "shade": true },
+    { "a": "peepal", "b": "dam", "minutes": 9, "highway": false, "uphill": false, "shade": true },
+    { "a": "home", "b": "dam", "minutes": 12, "highway": true, "uphill": false, "shade": false },
+    { "a": "dam", "b": "stadium", "minutes": 8, "highway": false, "uphill": false, "shade": false },
+    { "a": "stadium", "b": "tea", "minutes": 5, "highway": false, "uphill": false, "shade": true },
+    { "a": "tea", "b": "home", "minutes": 9, "highway": false, "uphill": false, "shade": true },
+    { "a": "tea", "b": "haat", "minutes": 3, "highway": false, "uphill": false, "shade": false },
+    { "a": "haat", "b": "temple", "minutes": 6, "highway": false, "uphill": false, "shade": false }
+  ]
+}

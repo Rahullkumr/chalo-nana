@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>नाना की सैर</title>
+  <style>
+    :root { --bg: #fff4dc; --ink: #2b1700; --btn: #b8460e; --btn-ink: #ffffff; --btn-playing: #5a2a08; --focus: #1a1a1a; color-scheme: light; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #1c1208; --ink: #fff1d6; --btn: #ffb347; --btn-ink: #1c1208; --btn-playing: #ffd9a0; --focus: #ffffff; color-scheme: dark; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0; min-height: 100vh; min-height: 100dvh; background: var(--bg); color: var(--ink);
+      font-family: "Nirmala UI", "Noto Sans Devanagari", "Mangal", system-ui, sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+      padding: 20px 16px; text-align: center;
+    }
+    #play {
+      width: min(86vw, 62vh, 420px); aspect-ratio: 1; border-radius: 50%; border: 0; cursor: pointer;
+      background: var(--btn); color: var(--btn-ink); font: inherit; font-weight: 800;
+      font-size: clamp(30px, 9vw, 48px); line-height: 1.3; padding: 24px;
+      box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+    }
+    #play.playing { background: var(--btn-playing); }
+    #play:active { transform: scale(0.97); }
+    :is(button):focus-visible { outline: 6px solid var(--focus); outline-offset: 6px; }
+    #done { font-size: clamp(28px, 8vw, 40px); font-weight: 800; margin: 0; line-height: 1.4; }
+    #msg { font-size: clamp(24px, 6.5vw, 32px); font-weight: 700; margin: 0; }
+    #again {
+      font: inherit; font-size: 24px; font-weight: 700; min-height: 64px; padding: 12px 32px; border-radius: 999px;
+      background: transparent; color: var(--ink); border: 4px solid var(--ink); cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="play" type="button">▶ आज की सैर सुनिए</button>
+  <p id="msg" role="status" hidden></p>
+  <p id="done" hidden>फ़ोन जेब में रखिए। चलिए!</p>
+  <button id="again" type="button" hidden>फिर से सुनिए</button>
+  <script type="module" src="js/nana.js"></script>
+</body>
+</html>

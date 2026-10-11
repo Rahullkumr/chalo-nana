@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>चलो नाना · Chalo Nana</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1 data-i18n="title">चलो नाना</h1>
+      <p class="subtitle" data-i18n="subtitle"></p>
+    </div>
+    <div class="controls">
+      <button class="theme" id="theme" type="button"></button>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="hi" aria-pressed="true">हिंदी</button>
+        <button type="button" data-lang="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+  </header>
+  <p class="banner" id="example" data-i18n="example" hidden></p>
+
+  <section class="card" id="mood">
+    <h2 data-i18n="s1"></h2>
+    <div class="chips" id="chips"></div>
+    <label for="text" data-i18n="textLabel"></label>
+    <textarea id="text" lang="hi"></textarea>
+    <button class="btn" id="make" type="button" data-i18n="make"></button>
+    <div class="wait" id="wait" hidden role="status"><b id="waitTitle"></b><small id="waitTime"></small></div>
+    <p class="msg error" id="err" hidden role="alert"></p>
+  </section>
+
+  <section class="card" id="settingsCard" hidden>
+    <h2 data-i18n="s2"></h2>
+    <p class="mood" id="moodLine"></p>
+    <p class="msg warn" id="skip" data-i18n="skip" hidden></p>
+    <div class="grid">
+      <div><label for="maxMinutes" data-i18n="maxMinutes"></label><input type="number" id="maxMinutes" min="5" max="120" inputmode="numeric"></div>
+      <div><label for="restEvery" data-i18n="restEvery"></label><input type="number" id="restEvery" min="3" max="60" inputmode="numeric"></div>
+      <div><label for="uphill" data-i18n="uphill"></label><select id="uphill"></select></div>
+    </div>
+    <label class="check"><input type="checkbox" id="shade"><span data-i18n="shade"></span></label>
+    <button class="btn alt" id="again" type="button" data-i18n="again"></button>
+  </section>
+
+  <section class="card" id="routeCard" hidden>
+    <h2 data-i18n="s3"></h2>
+    <p class="msg warn" id="noRoute" data-i18n="noRoute" hidden></p>
+    <p class="msg warn" id="fallback" data-i18n="fallback" hidden></p>
+    <ol class="timeline" id="timeline"></ol>
+    <p class="totals" id="totals"></p>
+    <p class="small" id="km"></p>
+    <div id="warnBox" hidden><p class="small" data-i18n="warnings"></p><ul class="warn-list" id="warnings"></ul></div>
+    <p class="small" id="source"></p>
+  </section>
+
+  <section class="card" id="speechCard" hidden>
+    <h2 data-i18n="s4"></h2>
+    <textarea class="speech" id="speech" lang="hi" aria-label="Spoken plan"></textarea>
+    <div class="btn-row">
+      <button class="btn alt" id="listen" type="button"><span id="listenLabel"></span></button>
+      <button class="btn" id="save" type="button" data-i18n="save"></button>
+    </div>
+    <p class="small" id="voiceNote" hidden></p>
+    <p class="msg" id="saved" hidden role="status"></p>
+  </section>
+
+  <section class="card" id="walkCard">
+    <h2 data-i18n="s5"></h2>
+    <div class="grid">
+      <div><label for="steps" data-i18n="steps"></label><input type="number" id="steps" min="0" inputmode="numeric"></div>
+      <div><label for="minutes" data-i18n="minutes"></label><input type="number" id="minutes" min="0" inputmode="numeric"></div>
+      <div><label for="rests" data-i18n="rests"></label><input type="number" id="rests" min="0" inputmode="numeric"></div>
+    </div>
+    <label data-i18n="felt"></label>
+    <div class="chips" id="felt"></div>
+    <label class="check"><input type="checkbox" id="completed"><span data-i18n="completed"></span></label>
+    <label for="note" data-i18n="note"></label>
+    <input type="text" id="note" lang="hi">
+    <button class="btn" id="logBtn" type="button" data-i18n="log"></button>
+    <p class="msg" id="logged" data-i18n="logged" hidden role="status"></p>
+    <p class="msg error" id="logErr" hidden role="alert"></p>
+    <div class="table-wrap">
+      <table id="logTable" hidden>
+        <thead><tr><th data-i18n="thDate"></th><th data-i18n="thSteps"></th><th data-i18n="thKm"></th><th data-i18n="thMin"></th><th data-i18n="thRests"></th><th data-i18n="thFelt"></th></tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+    <p class="small" id="noWalks" data-i18n="noWalks"></p>
+  </section>
+</main>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

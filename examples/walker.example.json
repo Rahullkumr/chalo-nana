@@ -1,0 +1,12 @@
+{
+  "note": "Example profile. Copy to data/walker.json and edit. The model's settings are always clamped to these limits.",
+  "name": "नाना",
+  "callName": "नानाजी",
+  "maxMinutes": 40,
+  "restEveryMinutes": 12,
+  "restMinutes": 4,
+  "speedMps": 0.75,
+  "strideM": 0.55,
+  "health": "घुटनों में कभी-कभी दर्द",
+  "likes": ["temple", "dam", "tea"]
+}
