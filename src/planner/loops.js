@@ -9,11 +9,13 @@
 const MAX_LINKS = 10;
 const MAX_LINK_USES = 2;
 
+// hours: [[from, to], ...] in 24h, e.g. the dam at sunrise and sunset. { from, to } also works.
 const isOpen = (place, now) => {
   if (place.days?.length && !place.days.includes(now.getDay())) return false;
   if (place.hours) {
     const h = now.getHours() + now.getMinutes() / 60;
-    if (h < place.hours.from || h > place.hours.to) return false;
+    const ranges = Array.isArray(place.hours) ? place.hours : [[place.hours.from, place.hours.to]];
+    if (!ranges.some(([from, to]) => h >= from && h <= to)) return false;
   }
   return true;
 };
@@ -23,9 +25,13 @@ const canSit = (place) => Boolean(place.sit);
 // Every loop from home that fits the time limit and never uses a link the settings forbid.
 function enumerateLoops(map, settings, slowFactor) {
   const adj = new Map(map.places.map((p) => [p.id, []]));
+  // Some places are for special days only (the sweet shop on pension day).
+  const skip = new Set(map.places
+    .filter((p) => p.onlyWhenAsked && !settings.wantPlaces?.includes(p.kind)).map((p) => p.id));
   map.links.forEach((link, i) => {
     if (link.highway) return; // never, whatever the settings say
     if (link.uphill && settings.avoidUphill === 'never') return;
+    if (skip.has(link.a) || skip.has(link.b)) return;
     adj.get(link.a)?.push({ to: link.b, i });
     adj.get(link.b)?.push({ to: link.a, i });
   });

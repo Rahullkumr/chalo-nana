@@ -85,7 +85,8 @@ export default async function apiRoutes(app) {
           schema: speechPrompt.schema,
           options: { temperature: attempt === 1 ? 0.5 : 0.3, num_predict: 1200 },
         });
-        const speech = result.speech.trim();
+        // Quote marks around names would be read aloud or make the voice pause oddly.
+        const speech = result.speech.replace(/['"‘’“”]/g, '').replace(/\n{2,}/g, '\n').trim();
         const problems = checkSpeech(speech, named);
         request.log.info({ stats, attempt, problems }, 'speech from model');
         if (!problems.length) return { route: named, speech, speechSource: 'gemma', warnings, settings };

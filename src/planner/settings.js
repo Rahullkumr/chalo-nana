@@ -5,6 +5,7 @@ import { KINDS } from '../prompts/settings.js';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, Math.round(Number(n) || 0)));
 const SHORTER = { none: 1, mild: 0.85, strong: 0.65 };
 const SHORTER_BREATH = { none: 1, mild: 0.7, strong: 0.5 };
+const ALREADY_WALKED = { none: 1, mild: 0.7, strong: 0.5 };
 const REST_SOONER = { none: 0, mild: 2, strong: 4 };
 
 // Used when the model is unavailable.
@@ -15,6 +16,7 @@ export function keywordSignals(said) {
     knee: level(/घुटन|पैर|अकड़|दर्द|ghutn|dard|pain/i),
     breath: level(/साँस|सांस|खाँसी|saans|breath|cough/i),
     tired: level(/थक|कमज़ोर|नींद|thak|tired/i),
+    walkedToday: level(/(बाज़ार|बाजार|हाट|सुबह).*(गए|आए|चल)|(bazaar|haat|subah).*(gaye|aaye|chal)/i),
     hotSun: has(/धूप|गर्मी|dhoop|garmi|sun|hot/i),
     rainOrMud: has(/बारिश|कीचड़|baarish|keechad|rain|mud/i),
     feelsGood: has(/अच्छा|achha|accha|good/i),
@@ -24,7 +26,10 @@ export function keywordSignals(said) {
       has(/बाँध|बांध|baandh|bandh|dam/i) && 'dam',
       has(/मैदान|स्टेडियम|maidan|stadium/i) && 'stadium',
       has(/चाय|chai|tea/i) && 'tea',
-      has(/हाट|बाज़ार|बाजार|haat|bazaar|market/i) && 'market',
+      has(/(हाट|बाज़ार|बाजार|haat|bazaar|market).*(जाना|jaana|chalna)/i) && 'market',
+      has(/बगीचा|बगीचे|पार्क|bagicha|park/i) && 'park',
+      has(/होटल|मिठाई|पेंशन|hotel|mithai|pension/i) && 'hotel',
+      has(/दोस्त|अर्जुन|dost|arjun|friend/i) && 'friend',
     ].filter(Boolean),
   };
 }
@@ -35,8 +40,10 @@ export function settingsFromSignals(s, walker, walks = []) {
   let minutes = walker.maxMinutes
     * Math.min(SHORTER[s.knee] ?? 1, SHORTER[s.tired] ?? 1, SHORTER_BREATH[s.breath] ?? 1)
     * (s.hotSun ? 0.9 : 1)
-    * (s.rainOrMud ? 0.8 : 1);
+    * (s.rainOrMud ? 0.8 : 1)
+    * (ALREADY_WALKED[s.walkedToday] ?? 1);
   const reasons = [];
+  if (s.walkedToday && s.walkedToday !== 'none') reasons.push('आज पहले ही चल चुके हैं, इसलिए छोटी सैर');
 
   // Yesterday decides too: after a hard walk, go shorter than that walk; after a good one, a little more.
   if (last && (last.felt === 'tired' || last.felt === 'pain' || !last.completed)) {

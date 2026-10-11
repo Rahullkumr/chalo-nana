@@ -105,4 +105,6 @@ export const CHIPS = [
   ['मंदिर जाना है', 'Wants to visit the temple'],
   ['बाँध देखना है', 'Wants to see the dam'],
   ['चाय पीनी है', 'Wants tea'],
+  ['आज बाज़ार हो आए हैं', 'Already went to the market today'],
+  ['बगीचे जाना है', 'Wants to go to the park'],
 ];
