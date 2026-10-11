@@ -1,0 +1,31 @@
+{
+  "name": "chalo-nana",
+  "version": "1.0.0",
+  "description": "A gentle daily walk sized for one grandparent: OpenStreetMap loop planned on the laptop, spoken in Hindi by a local Gemma model.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "fetch-area": "node --env-file-if-exists=.env scripts/fetch-area.js",
+    "plan": "node --env-file-if-exists=.env scripts/plan-cli.js"
+  },
+  "keywords": [
+    "ollama",
+    "gemma",
+    "openstreetmap",
+    "local-ai",
+    "elderly",
+    "walking",
+    "hindi",
+    "hacktoberfest"
+  ],
+  "author": "Rahul Kumar",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "fastify": "^5.12.5"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22.9"
+  }
+}

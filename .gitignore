@@ -1,0 +1,15 @@
+# Secrets and Nana's home location
+.env
+.env.*
+!.env.example
+
+# Private data: cached OSM area around home, family rest spots, walker profile, walk log
+data/
+
+# Dependencies
+node_modules/
+.agents/
+
+# Agent tooling (installed skills, not app code)
+.claude/
+skills-lock.json
