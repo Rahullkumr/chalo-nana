@@ -1,11 +1,10 @@
 {
   "name": "chalo-nana",
   "version": "1.0.0",
-  "description": "A gentle daily walk sized for one grandparent: OpenStreetMap loop planned on the laptop, spoken in Hindi by a local Gemma model.",
+  "description": "A gentle daily walk sized for one grandparent: planned on the laptop over the family's place map, spoken in Hindi by a local Gemma model.",
   "main": "src/server.js",
   "scripts": {
     "start": "node --env-file-if-exists=.env src/server.js",
-    "fetch-area": "node --env-file-if-exists=.env scripts/fetch-area.js",
     "plan": "node --env-file-if-exists=.env scripts/plan-cli.js"
   },
   "keywords": [

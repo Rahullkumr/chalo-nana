@@ -14,5 +14,6 @@
     "tea"
   ],
   "dailyGoalMinutes": 30,
-  "goalSource": "doctor"
+  "goalSource": "doctor",
+  "speaker": "grandson"
 }

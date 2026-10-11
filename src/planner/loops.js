@@ -69,7 +69,8 @@ function evaluate(loop, map, settings, slowFactor, now) {
   const stops = [];
   const notes = [];
   let score = 0;
-  let sinceRest = 0;
+  let sinceRest = 0; // minutes since he last sat down
+  let sincePause = 0; // minutes since he last sat or stopped to breathe
   let walked = 0;
   const visited = new Set();
   const reused = new Set();
@@ -81,8 +82,13 @@ function evaluate(loop, map, settings, slowFactor, now) {
     if (seenLinks.has(step.i)) reused.add(step.i);
     seenLinks.add(step.i);
 
-    // A long link with nowhere to sit gets a standing pause in the middle.
-    const pauses = Math.floor((sinceRest + minutes) / (settings.restEveryMinutes * 1.25));
+    // A long stretch gets standing pauses on the way. A seat at the end replaces the last one:
+    // he should sit on the bench he is walking to, not stop to breathe just before it.
+    const pauseEvery = settings.restEveryMinutes * 1.25;
+    const total = sincePause + minutes;
+    const seatAhead = canSit(byId.get(step.to));
+    const pauses = seatAhead ? Math.max(0, Math.ceil(total / pauseEvery) - 1) : Math.floor(total / pauseEvery);
+    sincePause = total - pauses * pauseEvery;
     legs.push({
       from: step.from,
       to: step.to,
@@ -93,10 +99,7 @@ function evaluate(loop, map, settings, slowFactor, now) {
     });
     walked += minutes;
     sinceRest += minutes;
-    if (pauses) {
-      score -= pauses * 4;
-      sinceRest = (sinceRest) % (settings.restEveryMinutes * 1.25);
-    }
+    score -= pauses * 4;
     if (link.uphill && settings.avoidUphill === 'prefer') score -= 8;
     if (settings.preferShade && !link.shade) score -= minutes * 0.4;
 
@@ -118,6 +121,7 @@ function evaluate(loop, map, settings, slowFactor, now) {
       stops.push({ at: place.id, afterMinutes: Math.round(walked), restMinutes: settings.restMinutes, sit: place.sit });
       score -= Math.max(0, sinceRest - settings.restEveryMinutes) * 3;
       sinceRest = 0;
+      sincePause = 0;
     } else if (firstVisit) {
       stops.push({ at: place.id, afterMinutes: Math.round(walked), restMinutes: 0, sit: null, open });
     }

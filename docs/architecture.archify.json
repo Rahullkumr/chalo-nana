@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Chalo Nana: how a day's walk gets made",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1120,
+      620
+    ]
+  },
+  "components": [
+    {
+      "id": "family",
+      "type": "frontend",
+      "label": "Family page",
+      "sublabel": "Hindi pills + text",
+      "pos": [
+        40,
+        70
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "Fastify server",
+      "sublabel": "routes/api.js",
+      "pos": [
+        320,
+        70
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "gemma",
+      "type": "backend",
+      "label": "Ollama",
+      "sublabel": "gemma4:e4b, JSON schema",
+      "brand": "ollama",
+      "pos": [
+        620,
+        70
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "check",
+      "type": "security",
+      "label": "Place check",
+      "sublabel": "no invented places",
+      "pos": [
+        900,
+        70
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "planner",
+      "type": "backend",
+      "label": "Planner",
+      "sublabel": "rules + loop search",
+      "pos": [
+        620,
+        220
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "data",
+      "type": "database",
+      "label": "data/",
+      "sublabel": "place map, profile, walk log",
+      "tag": "git-ignored",
+      "pos": [
+        900,
+        220
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "nana",
+      "type": "frontend",
+      "label": "Nana's phone",
+      "sublabel": "/nana.html, one button",
+      "pos": [
+        40,
+        370
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "tts",
+      "type": "external",
+      "label": "ElevenLabs",
+      "sublabel": "Indian-accent Hindi voice",
+      "pos": [
+        320,
+        510
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "This laptop: his map, log and the model stay here",
+      "wraps": [
+        "family",
+        "server",
+        "gemma",
+        "check",
+        "planner",
+        "data"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Internet",
+      "wraps": [
+        "tts"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "ask",
+      "from": "family",
+      "to": "server",
+      "label": "how is Nana today",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read-write",
+      "from": "server",
+      "to": "gemma",
+      "label": "read signals, write plan",
+      "variant": "emphasis"
+    },
+    {
+      "id": "verify",
+      "from": "gemma",
+      "to": "check",
+      "label": "Hindi plan"
+    },
+    {
+      "id": "plan",
+      "from": "server",
+      "to": "planner",
+      "label": "signals",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "read-map",
+      "from": "planner",
+      "to": "data",
+      "label": "reads"
+    },
+    {
+      "id": "speak",
+      "from": "server",
+      "to": "tts",
+      "label": "plan text only",
+      "variant": "security",
+      "labelAt": [
+        405,
+        470
+      ]
+    },
+    {
+      "id": "play",
+      "from": "server",
+      "to": "nana",
+      "label": "today.mp3, Wi-Fi"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Stays on this laptop",
+      "items": [
+        "Place map, his profile, the walk log",
+        "Gemma reading the family's Hindi and writing the plan",
+        "Today's MP3, so replays are free and offline"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Leaves the laptop",
+      "items": [
+        "Only the day's plan text, to ElevenLabs",
+        "The MP3 comes back once and is saved for replay"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Code decides, Gemma talks",
+      "items": [
+        "Gemma never picks minutes or places",
+        "Rules clamp every walk to the family's limits",
+        "The plan never names a place off the route"
+      ]
+    }
+  ]
+}

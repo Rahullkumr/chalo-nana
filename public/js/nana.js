@@ -60,7 +60,8 @@ async function start() {
   $('play').hidden = false;
   setPlaying(true);
   try {
-    const a = new Audio('/today.mp3');
+    // A fresh URL each time: phones keep old audio in their media cache, and today's plan changes daily.
+    const a = new Audio(`/today.mp3?t=${Date.now()}`);
     audio = a;
     a.onended = () => { if (my === token) finished(); };
     await a.play(); // rejects when the file is missing (404) or cannot be decoded

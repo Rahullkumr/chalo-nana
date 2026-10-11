@@ -108,7 +108,7 @@ export default async function apiRoutes(app) {
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const { result, stats } = await chatJSON({
-          system: speechPrompt.system,
+          system: speechPrompt.systemFor(walker),
           user: speechPrompt.buildUser({ walker, steps: routeSteps(named), settings }),
           schema: speechPrompt.schema,
           options: { temperature: attempt === 1 ? 0.5 : 0.3, num_predict: 1200 },
@@ -167,7 +167,7 @@ export default async function apiRoutes(app) {
     } catch {
       return reply.code(404).send({ error: 'No audio for today yet.' });
     }
-    return reply.type('audio/mpeg').header('Cache-Control', 'no-cache').send(createReadStream(store.todayAudioPath));
+    return reply.type('audio/mpeg').header('Cache-Control', 'no-store').send(createReadStream(store.todayAudioPath));
   });
 
   app.post('/api/walks', {

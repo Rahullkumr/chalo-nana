@@ -1,9 +1,9 @@
-# Secrets and Nana's home location
+# Secrets
 .env
 .env.*
 !.env.example
 
-# Private data: cached OSM area around home, family rest spots, walker profile, walk log
+# Private data: place map, walker profile, walk log, today's plan and audio
 data/
 
 # Dependencies
