@@ -21,7 +21,8 @@ export const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'gemma4:e4b';
 export const OLLAMA_KEEP_ALIVE = process.env.OLLAMA_KEEP_ALIVE || '30m';
 
 export const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || '';
-// George, a premade multilingual voice. Nana liked it in Padh Ke Batao.
+// Default: George, a premade multilingual voice. After the first walk Nana asked for an Indian
+// accent, so his .env points at an Indian Hindi voice from the ElevenLabs voice library.
 export const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'JBFqnCBsd6RMkjVDRZzb';
 // Supports Hindi and the speed setting.
 export const ELEVENLABS_MODEL = process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2';

@@ -46,11 +46,13 @@ export function settingsFromSignals(s, walker, walks = []) {
   if (s.walkedToday && s.walkedToday !== 'none') reasons.push('आज पहले ही चल चुके हैं, इसलिए छोटी सैर');
 
   // Yesterday decides too: after a hard walk, go shorter than that walk; after a good one, a little more.
+  // Walking time only: an hour out with twenty minutes of chatting on the stadium stairs is not an hour's walk.
+  const lastWalking = last ? last.minutes - (last.restMinutes ?? (last.rests || 0) * 5) : 0;
   if (last && (last.felt === 'tired' || last.felt === 'pain' || !last.completed)) {
-    minutes = Math.min(minutes, last.minutes * 0.85);
+    minutes = Math.min(minutes, lastWalking * 0.85);
     reasons.push('पिछली सैर के बाद थकान थी, इसलिए आज छोटी सैर');
   } else if (last && last.felt === 'good' && s.feelsGood && minutes >= walker.maxMinutes) {
-    minutes = Math.min(walker.maxMinutes + 5, last.minutes + 5);
+    minutes = Math.min(walker.maxMinutes + 5, lastWalking + 5);
     reasons.push('पिछली सैर अच्छी रही, आज पाँच मिनट ज़्यादा');
   }
 
@@ -61,6 +63,10 @@ export function settingsFromSignals(s, walker, walks = []) {
   if (s.hotSun) reasons.push('धूप तेज़ है, छाँव वाला रास्ता');
   if (s.rainOrMud) reasons.push('रास्ते गीले हैं, छोटी सैर');
   if (!reasons.length) reasons.push(s.feelsGood ? 'आज अच्छा लग रहा है, रोज़ जैसी सैर' : 'रोज़ जैसी सैर');
+  // The daily goal (often the doctor's "30 minutes a day") never overrides a bad day; it is said plainly.
+  if (walker.dailyGoalMinutes && minutes < walker.dailyGoalMinutes) {
+    reasons.push(`आज रोज़ के लक्ष्य (${walker.dailyGoalMinutes} मिनट) से कम, सेहत पहले`);
+  }
 
   const wanted = (s.wantPlaces || []).filter((k) => KINDS.includes(k));
   return {
@@ -71,7 +77,8 @@ export function settingsFromSignals(s, walker, walks = []) {
       avoidUphill: s.knee !== 'none' || s.breath !== 'none' ? 'never' : s.rainOrMud ? 'prefer' : 'no',
       preferShade: Boolean(s.hotSun),
       pace: s.knee !== 'none' || s.breath !== 'none' || s.tired !== 'none' ? 'slow' : 'normal',
-      wantPlaces: wanted.length ? wanted : walker.likes,
+      // Only what was asked for today; places he usually likes already score through place.likes.
+      wantPlaces: wanted,
     },
     mood: s.serious ? 'unwell' : s.breath === 'strong' || s.knee === 'strong' ? 'tired' : s.feelsGood ? 'good' : 'okay',
     reasonHi: reasons.join('। ') + '।',

@@ -14,6 +14,31 @@ import { nameRoute, routeSteps, templateSpeech, checkSpeech } from '../planner/d
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, Math.round(Number(n) || 0)));
 const today = () => new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD, local time
 
+// The last 7 days against his daily goal, from the walk log only.
+function weekSummary(walks, walker) {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const date = d.toLocaleDateString('en-CA');
+    const those = walks.filter((w) => w.date === date);
+    days.push({
+      date,
+      minutes: those.reduce((s, w) => s + (w.minutes || 0), 0),
+      km: Math.round(those.reduce((s, w) => s + (w.km || 0), 0) * 100) / 100,
+    });
+  }
+  const goal = walker.dailyGoalMinutes || null;
+  return {
+    goal,
+    goalSource: walker.goalSource || null,
+    days,
+    daysMet: goal ? days.filter((d) => d.minutes >= goal).length : null,
+    daysWalked: days.filter((d) => d.minutes > 0).length,
+    km: Math.round(days.reduce((s, d) => s + d.km, 0) * 100) / 100,
+  };
+}
+
 // Settings edited on the family page are clamped to his limits too.
 function safeSettings(raw, walker) {
   return {
@@ -32,7 +57,10 @@ export default async function apiRoutes(app) {
     const [walker, places, todayPlan, walks] = await Promise.all([
       store.loadWalker(), store.loadPlaces(), store.loadToday(), store.loadWalks(),
     ]);
-    return { walker, places, example: places.example, today: todayPlan, walks, tts: ttsEnabled, model: OLLAMA_MODEL };
+    return {
+      walker, places, example: places.example, today: todayPlan, walks,
+      week: weekSummary(walks, walker), tts: ttsEnabled, model: OLLAMA_MODEL,
+    };
   });
 
   app.post('/api/settings', {
@@ -151,6 +179,7 @@ export default async function apiRoutes(app) {
           steps: { type: 'number', minimum: 0, maximum: 50000 },
           minutes: { type: 'number', minimum: 0, maximum: 300 },
           rests: { type: 'number', minimum: 0, maximum: 50 },
+          restMinutes: { type: 'number', minimum: 0, maximum: 300 },
           felt: { type: 'string', enum: ['good', 'okay', 'tired', 'pain'] },
           completed: { type: 'boolean' },
           note: { type: 'string', maxLength: 500 },
@@ -168,11 +197,12 @@ export default async function apiRoutes(app) {
       km: b.steps ? Math.round((b.steps * walker.strideM) / 10) / 100 : null,
       minutes: b.minutes,
       rests: b.rests ?? 0,
+      restMinutes: b.restMinutes ?? null,
       felt: b.felt ?? 'okay',
       completed: b.completed ?? true,
       note: b.note ?? '',
     };
     const walks = await store.addWalk(walk);
-    return { walk, walks };
+    return { walk, walks, week: weekSummary(walks, walker) };
   });
 }

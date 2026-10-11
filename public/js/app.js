@@ -1,4 +1,4 @@
-import { TEXT, CHIPS } from './i18n.js';
+import { TEXT, CHIP_GROUPS } from './i18n.js';
 import { initSpeech, stopSpeaking } from './speech.js';
 
 const $ = (id) => document.getElementById(id);
@@ -48,7 +48,6 @@ function renderStatic() {
   sel.value = cur;
   applyTheme();
   if (!speechBusy) $('listenLabel').textContent = t().listen;
-  renderMood();
   renderRoute();
   renderLog();
   if (plan) $('saved').hidden = true;
@@ -57,7 +56,7 @@ function renderStatic() {
 function chipButton(label, pressed, onClick) {
   const b = document.createElement('button');
   b.type = 'button';
-  b.className = 'chip';
+  b.className = 'pill';
   b.textContent = label;
   b.setAttribute('aria-pressed', String(pressed));
   b.addEventListener('click', onClick);
@@ -67,11 +66,26 @@ function chipButton(label, pressed, onClick) {
 function renderChips() {
   const box = $('chips');
   box.innerHTML = '';
-  for (const [hi, en] of CHIPS) {
-    box.append(chipButton(lang === 'hi' ? hi : en, picked.has(hi), (e) => {
-      if (picked.has(hi)) picked.delete(hi); else picked.add(hi);
-      e.currentTarget.setAttribute('aria-pressed', String(picked.has(hi)));
-    }));
+  const places = (state?.places?.places || []).filter((p) => p.id !== 'home')
+    .map((p) => [`${p.name} जाना है`, p.name]);
+  const groups = CHIP_GROUPS.map(([key, items]) => [key, items.map(([hi, en]) => [hi, lang === 'hi' ? hi : en])]);
+  if (places.length) groups.push(['gGo', places]);
+  for (const [key, items] of groups) {
+    const g = document.createElement('div');
+    g.className = 'group';
+    const l = document.createElement('p');
+    l.className = 'group-label';
+    l.textContent = t()[key];
+    const row = document.createElement('div');
+    row.className = 'chips';
+    for (const [value, label] of items) {
+      row.append(chipButton(label, picked.has(value), (e) => {
+        if (picked.has(value)) picked.delete(value); else picked.add(value);
+        e.currentTarget.setAttribute('aria-pressed', String(picked.has(value)));
+      }));
+    }
+    g.append(l, row);
+    box.append(g);
   }
 }
 
@@ -85,20 +99,23 @@ function renderFeltChips() {
 
 // ---------- waiting state ----------
 let timer = null;
-function startWait(titleKey) {
+let waitEl = null;
+function startWait(titleKey, el) {
   const t0 = Date.now();
-  $('waitTitle').innerHTML = '';
+  waitEl = el;
+  const title = el.querySelector('.wt');
+  title.innerHTML = '';
   const sp = document.createElement('span');
   sp.className = 'spinner';
-  $('waitTitle').append(sp, document.createTextNode(t()[titleKey]));
-  $('waitTime').textContent = t().elapsed(0);
-  $('wait').hidden = false;
+  title.append(sp, document.createTextNode(t()[titleKey]));
+  el.querySelector('.wtime').textContent = t().elapsed(0);
+  el.hidden = false;
   clearInterval(timer);
-  timer = setInterval(() => { $('waitTime').textContent = t().elapsed(Math.round((Date.now() - t0) / 1000)); }, 1000);
+  timer = setInterval(() => { el.querySelector('.wtime').textContent = t().elapsed(Math.round((Date.now() - t0) / 1000)); }, 1000);
 }
 function endWait() {
   clearInterval(timer);
-  $('wait').hidden = true;
+  if (waitEl) waitEl.hidden = true;
 }
 function setBusy(busy) {
   $('make').disabled = busy;
@@ -128,11 +145,31 @@ function readSettings() {
 }
 
 function renderMood() {
-  if (!moodInfo) return;
-  const m = t().moods[moodInfo.mood] || moodInfo.mood;
-  $('moodLine').textContent = `${t().mood}: ${m}${moodInfo.reasonHi ? ' — ' + moodInfo.reasonHi : ''}`;
-  $('skip').hidden = !moodInfo.skipToday;
-  $('settingsCard').hidden = false;
+  if (moodInfo) {
+    $('moodLine').textContent = moodInfo.reasonHi || t().moods[moodInfo.mood] || moodInfo.mood;
+    $('skip').hidden = !moodInfo.skipToday;
+  } else if (plan) {
+    $('moodLine').textContent = t().today;
+    $('skip').hidden = true;
+  }
+}
+
+function sumPill(text) {
+  const s = document.createElement('span');
+  s.className = 'sumpill';
+  s.textContent = text;
+  return s;
+}
+
+function renderPills(route) {
+  const box = $('pills');
+  box.innerHTML = '';
+  if (!route?.ok || !settings) return;
+  box.append(sumPill(t().pillWalk(route.walkMinutes, route.restMinutes)));
+  box.append(sumPill(t().pillEvery(settings.restEveryMinutes)));
+  box.append(sumPill(t().pillUphill(settings.avoidUphill)));
+  if (settings.preferShade) box.append(sumPill(t().pillShade));
+  box.append(sumPill(t().pillKm(route.estimatedKm)));
 }
 
 // ---------- route card ----------
@@ -146,15 +183,15 @@ function tag(text, cls = '') {
 function renderRoute() {
   if (!plan) return;
   const { route } = plan;
-  $('routeCard').hidden = false;
+  $('planCard').hidden = false;
+  renderMood();
   const ok = route && route.ok;
   $('noRoute').hidden = ok;
   $('fallback').hidden = !(ok && route.fallback);
-  $('speechCard').hidden = !ok;
+  $('speechBox').hidden = !ok;
+  renderPills(route);
   const tl = $('timeline');
   tl.innerHTML = '';
-  $('totals').textContent = '';
-  $('km').textContent = '';
   $('source').textContent = '';
   $('warnBox').hidden = true;
   if (!ok) {
@@ -172,6 +209,8 @@ function renderRoute() {
   const stops = [...(route.stops || [])];
   const usedStops = new Set();
   const addStop = (s) => {
+    // A stop without rest is a place he passes and looks at (the pandal), not a seat.
+    if (!s.restMinutes) return add(t().passBy(s.name), '', []);
     const tags = typeof s.sit === 'string' && s.sit ? [tag(s.sit)] : [tag(t().tagSit)];
     add(t().sitAt(s.name, s.restMinutes), 'stop', tags);
   };
@@ -186,24 +225,22 @@ function renderRoute() {
   });
   stops.forEach((s, i) => { if (!usedStops.has(i)) addStop(s); });
   add(t().home);
-  $('totals').textContent = t().totals(route.walkMinutes, route.restMinutes, route.totalMinutes);
-  $('km').textContent = t().km(route.estimatedKm);
   const warns = plan.warnings || [];
   $('warnBox').hidden = warns.length === 0;
   $('warnings').innerHTML = '';
   warns.forEach((w) => { const li = document.createElement('li'); li.textContent = w; $('warnings').append(li); });
-  $('source').textContent = plan.speechSource === 'gemma' ? t().srcGemma : t().srcTemplate;
+  $('source').textContent = { gemma: t().srcGemma, template: t().srcTemplate }[plan.speechSource] || '';
 }
 
 // ---------- actions ----------
 async function runPlan() {
-  startWait('wait2');
+  startWait('wait2', $('wait2'));
   try {
     plan = await api('/api/plan', { settings });
     $('speech').value = plan.speech || '';
     $('saved').hidden = true;
     renderRoute();
-    $('routeCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('planCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } finally {
     endWait();
   }
@@ -219,13 +256,12 @@ async function onMake() {
   $('err').hidden = true;
   setBusy(true);
   stopSpeaking();
-  startWait('wait1');
+  startWait('wait1', $('wait'));
   try {
     const res = await api('/api/settings', { chips: [...picked], text });
     settings = res.settings;
     moodInfo = { mood: res.mood, reasonHi: res.reasonHi, skipToday: res.skipToday };
     fillSettings();
-    renderMood();
     await runPlan();
   } catch (err) {
     showError($('err'), err);
@@ -238,13 +274,13 @@ async function onMake() {
 async function onAgain() {
   if (!settings) return;
   settings = readSettings();
-  $('err').hidden = true;
+  $('err2').hidden = true;
   setBusy(true);
   stopSpeaking();
   try {
     await runPlan();
   } catch (err) {
-    showError($('err'), err);
+    showError($('err2'), err);
   } finally {
     setBusy(false);
   }
@@ -282,6 +318,7 @@ async function onLogWalk() {
       note: $('note').value.trim(),
     });
     walks = res.walks || walks;
+    if (state && res.week) state.week = res.week;
     renderLog();
     $('logged').hidden = false;
     ['steps', 'minutes', 'rests', 'note'].forEach((id) => { $(id).value = ''; });
@@ -292,7 +329,14 @@ async function onLogWalk() {
   }
 }
 
+function renderGoal() {
+  const w = state?.week;
+  $('goalLine').hidden = !w?.goal;
+  if (w?.goal) $('goalLine').textContent = t().goalLine(w);
+}
+
 function renderLog() {
+  renderGoal();
   const body = $('logBody');
   body.innerHTML = '';
   const rows = [...walks].sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -347,6 +391,7 @@ async function init() {
   }
   $('example').hidden = !state.example;
   walks = state.walks || [];
+  renderChips();
   renderLog();
   const today = state.today;
   if (today && today.route) {
@@ -355,8 +400,6 @@ async function init() {
     plan = { route: today.route, speech: today.speech, speechSource: '', warnings: [] };
     $('speech').value = today.speech || '';
     if (settings) fillSettings();
-    if (settings) $('settingsCard').hidden = false;
-    $('moodLine').textContent = t().today;
     renderRoute();
   }
 }

@@ -10,7 +10,7 @@ const MAX_LINKS = 10;
 const MAX_LINK_USES = 2;
 
 // hours: [[from, to], ...] in 24h, e.g. the dam at sunrise and sunset. { from, to } also works.
-const isOpen = (place, now) => {
+export const isOpen = (place, now) => {
   if (place.days?.length && !place.days.includes(now.getDay())) return false;
   if (place.hours) {
     const h = now.getHours() + now.getMinutes() / 60;
@@ -77,7 +77,7 @@ function evaluate(loop, map, settings, slowFactor, now) {
 
   for (const step of loop.links) {
     const link = map.links[step.i];
-    const minutes = Math.round(link.minutes * slowFactor * 10) / 10;
+    const minutes = Math.round(link.minutes * slowFactor); // the family's own times are only to a minute anyway
     if (seenLinks.has(step.i)) reused.add(step.i);
     seenLinks.add(step.i);
 
@@ -108,7 +108,8 @@ function evaluate(loop, map, settings, slowFactor, now) {
     visited.add(place.id);
     if (firstVisit && open) {
       score += (place.likes || 0) * 6;
-      if (settings.wantPlaces?.includes(place.kind)) score += 10;
+      // Asked for today ("पंडाल देखना है") beats a few minutes over or a longer stretch home.
+      if (settings.wantPlaces?.includes(place.kind)) score += 25;
     }
 
     // Sit here if he has walked most of a rest interval, or a little less at a place he loves.

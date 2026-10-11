@@ -8,5 +8,11 @@
   "speedMps": 0.75,
   "strideM": 0.55,
   "health": "घुटनों में कभी-कभी दर्द",
-  "likes": ["temple", "dam", "tea"]
+  "likes": [
+    "temple",
+    "dam",
+    "tea"
+  ],
+  "dailyGoalMinutes": 30,
+  "goalSource": "doctor"
 }

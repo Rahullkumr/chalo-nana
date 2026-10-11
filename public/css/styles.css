@@ -46,12 +46,21 @@ h1 { font-size: 1.7em; margin: 0; line-height: 1.2; }
 h2 { font-size: 1.15em; margin: 0 0 12px; color: var(--accent); }
 label { display: block; font-weight: 600; margin: 14px 0 6px; font-size: 0.95em; }
 
-.chips { display: flex; flex-wrap: wrap; gap: 10px; }
-.chip {
-  font: inherit; font-size: 0.95em; min-height: 52px; padding: 8px 18px; border-radius: 999px; cursor: pointer;
-  border: 2px solid var(--line); background: var(--card); color: var(--ink);
+.group { margin-top: 14px; }
+.group:first-child { margin-top: 0; }
+.group-label { margin: 0 0 6px; font-size: 0.8em; font-weight: 700; color: var(--muted); letter-spacing: 0.02em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  font: inherit; font-size: 0.9em; min-height: 44px; padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
 }
-.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.pill[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.pill[aria-pressed="true"]::before { content: "\2713\00a0"; }
+.sumpills { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+.sumpill { padding: 4px 14px; border-radius: 999px; background: var(--accent-bg); color: var(--accent); border: 1.5px solid var(--accent); font-size: 0.85em; font-weight: 700; }
+details.change { margin-top: 20px; border-top: 2px dashed var(--line); padding-top: 12px; }
+details.change summary { cursor: pointer; font-weight: 700; min-height: 48px; display: flex; align-items: center; color: var(--accent); }
+.btn.small { width: auto; min-height: 48px; padding: 8px 20px; font-size: 1em; }
 
 textarea, input[type="number"], input[type="text"], select {
   width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 2px solid var(--line);
@@ -73,7 +82,7 @@ textarea.speech { font-size: 1.3em; line-height: 1.7; min-height: 200px; }
 .btn.alt:hover { background: var(--accent-bg); }
 .btn:disabled { opacity: 0.6; cursor: wait; }
 .btn-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 12px; }
-:is(.btn, .chip, .theme, .lang button, summary):focus-visible, :is(textarea, input, select):focus-visible { outline: 4px solid var(--focus); outline-offset: 2px; }
+:is(.btn, .pill, .theme, .lang button, summary):focus-visible, :is(textarea, input, select):focus-visible { outline: 4px solid var(--focus); outline-offset: 2px; }
 
 .wait { margin-top: 16px; padding: 14px 16px; background: var(--accent-bg); border-radius: 14px; }
 .wait b { display: block; }
@@ -104,3 +113,12 @@ th { color: var(--muted); }
 
 @media (max-width: 480px) { body { font-size: 18px; } .card { padding: 16px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+
+/* Weekly goal line in the after-walk card */
+.goal {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  font-weight: 600;
+}

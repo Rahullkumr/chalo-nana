@@ -1,5 +1,6 @@
 // Turns a planned route into (1) plain steps for the model, (2) a Hindi plan written by code,
 // used when the model is slow, offline or fails the check, and (3) that check itself.
+import { isOpen } from './loops.js';
 
 const HINDI_NUMBERS = ('शून्य एक दो तीन चार पाँच छह सात आठ नौ दस ग्यारह बारह तेरह चौदह पंद्रह सोलह सत्रह अठारह उन्नीस बीस ' +
   'इक्कीस बाईस तेईस चौबीस पच्चीस छब्बीस सत्ताईस अट्ठाईस उनतीस तीस इकतीस बत्तीस तैंतीस चौंतीस पैंतीस छत्तीस सैंतीस अड़तीस उनतालीस चालीस ' +
@@ -15,10 +16,15 @@ const PLACE_WORDS = [
   'स्कूल', 'विद्यालय', 'अस्पताल', 'चौक', 'चौराहा', 'स्टेशन', 'पेड़', 'पीपल', 'बरगद', 'चबूतरा', 'बेंच', 'कुआँ', 'कुआं',
 ];
 
-// Attaches names to every place id on the route, and pairs each leg with what happens on arrival.
-export function nameRoute(route, map) {
+// Attaches names to every place id on the route, pairs each leg with what happens on arrival,
+// and collects what is happening today at those places (the pandal, haat day) for the invitation.
+export function nameRoute(route, map, now = new Date()) {
   const byId = new Map(map.places.map((p) => [p.id, p]));
   const name = (id) => byId.get(id)?.name ?? id;
+  const happening = [...new Set(route.legs.map((l) => l.to))]
+    .map((id) => byId.get(id))
+    .filter((p) => p?.whenOpen && isOpen(p, now))
+    .map((p) => ({ at: p.id, name: p.name, text: p.whenOpen }));
   let next = 0;
   const legs = route.legs.map((leg) => {
     let stop = null;
@@ -29,12 +35,13 @@ export function nameRoute(route, map) {
     ...route,
     legs,
     stops: route.stops.map((s) => ({ ...s, name: name(s.at) })),
+    happening,
   };
 }
 
 // Plain English steps, with the exact Hindi place names, for the speech prompt.
 export function routeSteps(named) {
-  const steps = [];
+  const steps = (named.happening || []).map((h) => `Today at "${h.name}": ${h.text}`);
   named.legs.forEach((leg, i) => {
     const how = [leg.shade && 'mostly in shade', leg.uphill && 'a little uphill, go slowly'].filter(Boolean).join(', ');
     const pause = leg.standingPauses ? `; standing pause once on the way` : '';
@@ -53,7 +60,10 @@ export function routeSteps(named) {
 // The same plan, written by code. Plainer than the model, but always correct.
 export function templateSpeech(named, walker) {
   const call = walker.callName || walker.name;
-  const lines = [`${call}, आज की सैर ऐसे कीजिए।`];
+  const lines = [
+    ...(named.happening || []).map((h, i) => `${i === 0 ? `${call}, ` : 'और '}${h.text}।`),
+    `${named.happening?.length ? 'तो' : call + ','} आज की सैर ऐसे कीजिए।`,
+  ];
   named.legs.forEach((leg, i) => {
     const min = `${hindiNumber(leg.minutes)} मिनट`;
     if (leg.to === 'home') lines.push(`फिर ${leg.fromName} से घर लौट आइए, लगभग ${min} लगेंगे।`);
@@ -79,6 +89,7 @@ export function checkSpeech(speech, named) {
   const routeText = [
     ...named.legs.flatMap((l) => [l.fromName, l.toName]),
     ...named.stops.map((s) => s.sit || ''),
+    ...(named.happening || []).map((h) => h.text),
   ].join(' ');
   for (const word of PLACE_WORDS) {
     if (speech.includes(word) && !routeText.includes(word)) problems.push(`invented:${word}`);

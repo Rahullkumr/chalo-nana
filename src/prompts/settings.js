@@ -2,7 +2,7 @@
 // The model only understands the Hindi. src/planner/settings.js turns the signals into minutes,
 // with fixed rules, so a model mistake cannot make the walk longer than his limits.
 
-export const KINDS = ['temple', 'dam', 'stadium', 'tea', 'market', 'park', 'hotel', 'friend', 'rest'];
+export const KINDS = ['temple', 'dam', 'stadium', 'tea', 'market', 'park', 'hotel', 'friend', 'pandal', 'rest'];
 const LEVEL = { type: 'string', enum: ['none', 'mild', 'strong'] };
 
 export const schema = {
@@ -32,7 +32,7 @@ Read it carefully and report only what they actually said, as JSON.
 - rainOrMud: rain, wet or muddy paths (बारिश, कीचड़).
 - feelsGood: he feels well today (अच्छा लग रहा है, फ्रेश).
 - serious: chest pain, dizziness, fever, a fall, or anything that needs a doctor rather than a walk.
-- wantPlaces: places he WANTS to go on this walk (जाना है, देखना है, चलना है). Never a place he already went to today. Kinds: temple (मंदिर), dam (बाँध), stadium (मैदान/स्टेडियम), tea (चाय), market (हाट/बाज़ार), park (बगीचा), hotel (होटल, मिठाई), friend (दोस्त, किसी के घर), rest.
+- wantPlaces: places he WANTS to go on this walk (जाना है, देखना है, चलना है). Never a place he already went to today. Kinds: temple (मंदिर), dam (बाँध), stadium (मैदान/स्टेडियम), tea (चाय), market (हाट/बाज़ार), park (बगीचा), hotel (होटल, मिठाई), friend (दोस्त, किसी के घर), pandal (पंडाल, दुर्गा पूजा, नवरात्रि), rest.
 If something is not mentioned, it is "none" or false. Do not guess.`;
 
 export function buildUser({ chips, text }) {
